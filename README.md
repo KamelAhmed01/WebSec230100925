@@ -1,4 +1,4 @@
-# WebSec230100925
+# WebSec 230100925
 Kamel's Official Repository for Web Security Course Assignments
 
 Welcome to my repository for the *Web and Security Technologies* course at the University of Technology, Spring 2024, led by Prof. M. Sobh. This is where I showcase my skills, creativity, and commitment to mastering web development and security through clean code and smart solutions.
