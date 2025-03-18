@@ -1,153 +1,138 @@
 <?php
 
-
+use App\Http\Controllers\BookController;
+use App\Http\Controllers\web\ProductsController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Web\ProductsController;
 
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a middleware group.
+|
+*/
+
+Route::view('/','posts.index')->name('home');
 Route::get('products', [ProductsController::class, 'list'])->name('products_list');
-Route::get('products/edit/{product?}', [ProductsController::class, 'edit'])->name('products_edit');
-Route::post('products/save/{product?}', [ProductsController::class, 'save'])->name('products_save');
-Route::post('products/delete/{product}', [ProductsController::class, 'delete'])->name('products_delete');
 
-
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/first', function () {
+    return view('LabExercises.first');
 });
 Route::get('/even', function () {
-    return view('even');
+    return view('LabExercises.even');
 });
 Route::get('/prime', function () {
-    return view('prime');
+    // Make sure the isPrime function is available
+    return view('LabExercises.prime');
 });
-Route::get('/multable/{number?}', function ($number = null) {
-    $j = $number ?? 2;
-    return view('multable', compact('j'));
+Route::get('/multable', function () {
+    return view('LabExercises.multable');
 });
 Route::get('/multiquiz', function () {
-    return view('multiquiz');
+    return view('LabExercises.multiquiz');
 });
-Route::get('/minitest', function () {
-    $items = [
-        [
-            'name' => 'Milk',
-            'quantity' => 2,
-            'price' => 3.50
-        ],
-        [
-            'name' => 'Bread',
-            'quantity' => 1,
-            'price' => 2.00
-        ],
-        [
-            'name' => 'Butter',
-            'quantity' => 1,
-            'price' => 1.00
-        ]
-    ];
-
-
-    $total = array_reduce($items, function($carry, $item) {
-        return $carry + ($item['quantity'] * $item['price']);
-    }, 0);
-
-    return view('minitest', compact('items', 'total'));
-});
-
-Route::get('/transcript', function () {
-    $courses = [
-        [
-            'code' => 'CS101',
-            'name' => 'Introduction to Programming',
-            'ch' => 3,
-            'grade' => 85
-        ],
-        [
-            'code' => 'CS102',
-            'name' => 'OOP',
-            'ch' => 3,
-            'grade' => 92
-        ],
-        [
-            'code' => 'MATH201',
-            'name' => 'Math I',
-            'ch' => 4,
-            'grade' => 88
-        ],
-        [
-            'code' => 'ENG101',
-            'name' => 'engeneering',
-            'ch' => 3,
-            'grade' => 78
-        ]
-    ];
-
-    $courses = array_map(function($course) {
-        $course['gpa'] = calculateGPA($course['grade']);
-        $course['letter'] = getGradeLetter($course['grade']);
-        return $course;
-    }, $courses);
-
-    $totalCH = array_sum(array_column($courses, 'ch'));
-    $totalGPAPoints = array_sum(array_map(function($course) {
-        return $course['ch'] * $course['gpa'];
-    }, $courses));
-
-    $cgpa = $totalGPAPoints / $totalCH;
-
-    return view('transcript', compact('courses', 'cgpa'));
-});
-
 Route::get('/calculator', function () {
-    return view('calculator');
-})->name('calculator');
-
+    return view('LabExercises.calculator');
+});
 Route::get('/gpa-simulator', function () {
-    // Course catalog with code, title and credit hours
+    // Define course catalog data
     $courseCatalog = [
         [
-            'code' => 'CS101',
-            'title' => 'Introduction to Programming',
+            'code' => 'CSC101',
+            'title' => 'Introduction to Computer Science',
             'credit_hours' => 3
         ],
         [
-            'code' => 'CS102',
-            'title' => 'Object-Oriented Programming',
-            'credit_hours' => 3
-        ],
-        [
-            'code' => 'MATH201',
-            'title' => 'Calculus I',
+            'code' => 'CSC201',
+            'title' => 'Data Structures',
             'credit_hours' => 4
         ],
         [
-            'code' => 'CS220',
-            'title' => 'Data Structures',
+            'code' => 'MTH101',
+            'title' => 'Calculus I',
             'credit_hours' => 3
+        ],
+        [
+            'code' => 'PHY101',
+            'title' => 'Physics I',
+            'credit_hours' => 4
         ],
         [
             'code' => 'ENG101',
             'title' => 'English Composition',
             'credit_hours' => 3
-        ],
-        [
-            'code' => 'PHYS101',
-            'title' => 'Physics I',
-            'credit_hours' => 4
-        ],
-        [
-            'code' => 'CHEM101',
-            'title' => 'Chemistry I',
-            'credit_hours' => 4
-        ],
-        [
-            'code' => 'CS310',
-            'title' => 'Algorithms',
-            'credit_hours' => 3
         ]
     ];
 
-    return view('gpa-simulator', compact('courseCatalog'));
+    return view('LabExercises.gpa-simulator', compact('courseCatalog'));
+});
+Route::get('/minitest', function () {
+    // Sample market items data
+    $items = [
+        [
+            'name' => 'Apple',
+            'quantity' => 5,
+            'price' => 0.99
+        ],
+        [
+            'name' => 'Banana',
+            'quantity' => 3,
+            'price' => 0.59
+        ],
+        [
+            'name' => 'Orange Juice',
+            'quantity' => 2,
+            'price' => 3.99
+        ],
+        [
+            'name' => 'Bread',
+            'quantity' => 1,
+            'price' => 2.49
+        ]
+    ];
+
+    // Calculate the total
+    $total = 0;
+    foreach ($items as $item) {
+        $total += ($item['quantity'] * $item['price']);
+    }
+
+    return view('LabExercises.minitest', compact('items', 'total'));
+});
+
+// Apply guest middleware to register routes
+Route::middleware('guest')->group(function() {
+    // Views
+    Route::view('/register','auth.register')->name('register');
+    Route::view('/login', 'auth.login')->name('login');
+
+    // POST handlers
+    Route::post('/register',[AuthController::class,'register_user']);
+    Route::post('/login', [AuthController::class, 'login']);
+});
+
+// Add authenticated routes
+Route::middleware('auth')->group(function() {
+    // Change password routes
+    Route::get('/change-password', [AuthController::class, 'showChangePasswordForm'])->name('password.change');
+    Route::post('/change-password', [AuthController::class, 'changePassword'])->name('password.update');
+    // Logout route
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // User management routes
+    Route::resource('users', UserController::class);
+
+    Route::get('products/edit/{product?}', [ProductsController::class, 'edit'])->name('products_edit');
+    Route::post('products/save/{product?}', [ProductsController::class, 'save'])->name('products_save');
+    Route::post('products/delete/{product}', [ProductsController::class, 'delete'])->name('products_delete');
+
+    Route::get('/books', [BookController::class, 'index'])->name('books.index');
+    Route::get('/books/create', [BookController::class, 'create'])->name('books.create');
+    Route::post('/books', [BookController::class, 'store'])->name('books.store');
 });
 
 

@@ -3,6 +3,8 @@ namespace App\Http\Controllers\Web;
 
 use Illuminate\Http\Request;
 use DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
@@ -72,9 +74,13 @@ class ProductsController extends Controller {
 
 		return redirect()->route('products_list');
 	}
-
 	public function delete(Request $request, Product $product) {
+		// Check if user is authenticated and has admin role or appropriate permissions
+		if (!Auth::check() || !Gate::allows('delete_products', $product)) {
+			abort(401, 'Unauthorized action.');
+		}
 
+		$product->delete();
 		$product->delete();
 
 		return redirect()->route('products_list');
