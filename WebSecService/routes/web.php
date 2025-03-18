@@ -16,9 +16,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::view('/','posts.index')->name('home');
+Route::view('/', 'posts.index')->name('home');
 Route::get('products', [ProductsController::class, 'list'])->name('products_list');
-
 Route::get('/first', function () {
     return view('LabExercises.first');
 });
@@ -26,7 +25,6 @@ Route::get('/even', function () {
     return view('LabExercises.even');
 });
 Route::get('/prime', function () {
-    // Make sure the isPrime function is available
     return view('LabExercises.prime');
 });
 Route::get('/multable', function () {
@@ -39,7 +37,7 @@ Route::get('/calculator', function () {
     return view('LabExercises.calculator');
 });
 Route::get('/gpa-simulator', function () {
-    // Define course catalog data
+
     $courseCatalog = [
         [
             'code' => 'CSC101',
@@ -71,7 +69,6 @@ Route::get('/gpa-simulator', function () {
     return view('LabExercises.gpa-simulator', compact('courseCatalog'));
 });
 Route::get('/minitest', function () {
-    // Sample market items data
     $items = [
         [
             'name' => 'Apple',
@@ -104,26 +101,26 @@ Route::get('/minitest', function () {
     return view('LabExercises.minitest', compact('items', 'total'));
 });
 
-// Apply guest middleware to register routes
-Route::middleware('guest')->group(function() {
+
+Route::middleware('guest')->group(function () {
     // Views
-    Route::view('/register','auth.register')->name('register');
+    Route::view('/register', 'auth.register')->name('register');
     Route::view('/login', 'auth.login')->name('login');
 
     // POST handlers
-    Route::post('/register',[AuthController::class,'register_user']);
+    Route::post('/register', [AuthController::class, 'register_user']);
     Route::post('/login', [AuthController::class, 'login']);
 });
 
-// Add authenticated routes
-Route::middleware('auth')->group(function() {
-    // Change password routes
+
+Route::middleware('auth')->group(function () {
+
     Route::get('/change-password', [AuthController::class, 'showChangePasswordForm'])->name('password.change');
     Route::post('/change-password', [AuthController::class, 'changePassword'])->name('password.update');
-    // Logout route
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // User management routes
+
     Route::resource('users', UserController::class);
 
     Route::get('products/edit/{product?}', [ProductsController::class, 'edit'])->name('products_edit');
@@ -134,6 +131,3 @@ Route::middleware('auth')->group(function() {
     Route::get('/books/create', [BookController::class, 'create'])->name('books.create');
     Route::post('/books', [BookController::class, 'store'])->name('books.store');
 });
-
-
-
