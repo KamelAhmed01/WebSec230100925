@@ -16,8 +16,13 @@ class UserController extends Controller
     /**
      * Display a listing of users.
      */
-    public function index()
+    public function index(Request $request)
     {
+        // Check if user has view_users permission
+        if (!$request->user()->hasPermissionTo('view_users')) {
+            abort(401);
+        }
+
         $users = User::latest()->paginate(10);
         return view('users.index', compact('users'));
     }
@@ -25,8 +30,13 @@ class UserController extends Controller
     /**
      * Show the form for creating a new user.
      */
-    public function create()
+    public function create(Request $request)
     {
+        // Check if user has create_users permission
+        if (!$request->user()->hasPermissionTo('create_users')) {
+            abort(401);
+        }
+
         $roles = \Spatie\Permission\Models\Role::all();
         return view('users.create', compact('roles'));
     }
@@ -36,7 +46,12 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-         //validate
+        // Check if user has create_users permission
+        if (!$request->user()->hasPermissionTo('create_users')) {
+            abort(401);
+        }
+
+        //validate
         $fields = $request->validate([
             'username' => ['required','max:255'],
             'email' => ['required','email','max:255', 'unique:users'],
@@ -60,16 +75,26 @@ class UserController extends Controller
     /**
      * Display the specified user.
      */
-    public function show(User $user)
+    public function show(Request $request, User $user)
     {
+        // Check if user has view_users permission
+        if (!$request->user()->hasPermissionTo('view_users')) {
+            abort(401);
+        }
+
         return view('users.show', compact('user'));
     }
 
     /**
      * Show the form for editing the specified user.
      */
-    public function edit(User $user)
+    public function edit(Request $request, User $user)
     {
+        // Check if user has edit_users permission
+        if (!$request->user()->hasPermissionTo('edit_users')) {
+            abort(401);
+        }
+
         $roles = \Spatie\Permission\Models\Role::all();
         return view('users.edit', compact('user', 'roles'));
     }
@@ -79,6 +104,11 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        // Check if user has edit_users permission
+        if (!$request->user()->hasPermissionTo('edit_users')) {
+            abort(401);
+        }
+
         $validated = $request->validate([
             'username' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
@@ -105,8 +135,13 @@ class UserController extends Controller
     /**
      * Remove the specified user.
      */
-    public function destroy(User $user)
+    public function destroy(Request $request, User $user)
     {
+        // Check if user has delete_users permission
+        if (!$request->user()->hasPermissionTo('delete_users')) {
+            abort(401);
+        }
+
         // Prevent deleting yourself
         if ($user->id === Auth::id()) {
             return back()->with('error', 'You cannot delete your own account.');

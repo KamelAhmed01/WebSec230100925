@@ -123,9 +123,15 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('users', UserController::class);
 
-    Route::get('products/edit/{product?}', [ProductsController::class, 'edit'])->name('products_edit');
-    Route::post('products/save/{product?}', [ProductsController::class, 'save'])->name('products_save');
-    Route::post('products/delete/{product}', [ProductsController::class, 'delete'])->name('products_delete');
+    // Product routes with permission checks
+    Route::get('products/edit/{product?}', [ProductsController::class, 'edit'])
+        ->name('products_edit');
+
+    Route::post('products/save/{product?}', [ProductsController::class, 'save'])
+        ->name('products_save');
+
+    Route::post('products/delete/{product}', [ProductsController::class, 'delete'])
+        ->name('products_delete');
 
     Route::get('/books', [BookController::class, 'index'])->name('books.index');
     Route::get('/books/create', [BookController::class, 'create'])->name('books.create');

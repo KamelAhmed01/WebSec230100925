@@ -4,87 +4,116 @@ namespace App\Http\Controllers\Web;
 use Illuminate\Http\Request;
 use DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 
 class ProductsController extends Controller {
 
-	public function list(Request $request) {
+    public function list(Request $request) {
 
-		$query = Product::select("products.*");
+        $query = Product::select("products.*");
 
-		$query->when($request->keywords,
-		fn($q)=> $q->where("name", "like", "%$request->keywords%"));
+        $query->when($request->keywords,
+        fn($q)=> $q->where("name", "like", "%$request->keywords%"));
 
-		$query->when($request->min_price,
-		fn($q)=> $q->where("price", ">=", $request->min_price));
+        $query->when($request->min_price,
+        fn($q)=> $q->where("price", ">=", $request->min_price));
 
-		$query->when($request->max_price, fn($q)=>
-		$q->where("price", "<=", $request->max_price));
+        $query->when($request->max_price, fn($q)=>
+        $q->where("price", "<=", $request->max_price));
 
-		$query->when($request->order_by,
-		fn($q)=> $q->orderBy($request->order_by, $request->order_direction??"ASC"));
+        $query->when($request->order_by,
+        fn($q)=> $q->orderBy($request->order_by, $request->order_direction??"ASC"));
 
-		$products = $query->get();
+        $products = $query->get();
 
-		return view('products.list', compact('products'));
-	}
+        return view('products.list', compact('products'));
+    }
 
-	public function edit(Request $request, Product $product = null) {
-		$product = $product ?? new Product();
+    public function edit(Request $request, Product $product = null) {
+        $product = $product ?? new Product();
 
-		// Get all images from the public images directory
-		$images = [];
-		$imagesPath = public_path('images');
-		if (file_exists($imagesPath)) {
-			$files = scandir($imagesPath);
-			foreach ($files as $file) {
-				$extension = pathinfo($file, PATHINFO_EXTENSION);
-				if (in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']) && $file !== '.' && $file !== '..') {
-					$images[] = $file;
-				}
-			}
-		}
+        // Check for appropriate permissions using direct permission checks
+        if ($product->exists && !$request->user()->hasPermissionTo('edit_products')) {
+            abort(401);
+        }
 
-		return view('products.edit', compact('product', 'images'));
-	}
+        if (!$product->exists && !$request->user()->hasPermissionTo('add_products')) {
+            abort(401);
+        }
 
-	public function save(Request $request, Product $product = null) {
-		$product = $product ?? new Product();
+        // Get all images from the public images directory
+        $images = [];
+        $imagesPath = public_path('images');
+        if (file_exists($imagesPath)) {
+            $files = scandir($imagesPath);
+            foreach ($files as $file) {
+                $extension = pathinfo($file, PATHINFO_EXTENSION);
+                if (in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif', 'webp']) && $file !== '.' && $file !== '..') {
+                    $images[] = $file;
+                }
+            }
+        }
 
-		// Handle file upload if a file was provided
-		if ($request->hasFile('image_upload') && $request->file('image_upload')->isValid()) {
-			$file = $request->file('image_upload');
+        return view('products.edit', compact('product', 'images'));
+    }
 
-			// Generate a unique name for the file
-			$fileName = time() . '_' . $file->getClientOriginalName();
+    public function save(Request $request, Product $product = null) {
+        $product = $product ?? new Product();
 
-			// Move the uploaded file to the public images directory
-			$file->move(public_path('images'), $fileName);
+        // Check for appropriate permissions using direct permission checks
+        if ($product->exists && !$request->user()->hasPermissionTo('edit_products')) {
+            abort(401);
+        }
 
-			// Set the photo field to the newly uploaded file name
-			$request->merge(['photo' => $fileName]);
-		}
+        if (!$product->exists && !$request->user()->hasPermissionTo('add_products')) {
+            abort(401);
+        }
 
-		// Continue with existing save logic
-		$product->fill($request->all());
-		$product->save();
+        // Validate basic product data
+        $validator = Validator::make($request->all(), [
+            'code' => ['required', 'string', 'max:32'],
+            'name' => ['required', 'string', 'max:128'],
+            'model' => ['required', 'string', 'max:256'],
+            'description' => ['required', 'string', 'max:1024'],
+            'price' => ['required', 'numeric'],
+            'image_upload' => ['nullable', 'file', 'image', 'mimes:jpeg,jpg,png,gif,webp', 'max:2048'],
+        ]);
 
-		return redirect()->route('products_list');
-	}
-	public function delete(Request $request, Product $product) {
-		// Check if user is authenticated and has admin role or appropriate permissions
-		if (!Auth::check() || !Gate::allows('delete_products', $product)) {
-			abort(401, 'Unauthorized action.');
-		}
+        // Handle file upload if a file was provided
+        if ($request->hasFile('image_upload') && $request->file('image_upload')->isValid()) {
+            $file = $request->file('image_upload');
 
-		$product->delete();
-		$product->delete();
+            // Generate a unique name for the file
+            $fileName = time() . '_' . $file->getClientOriginalName();
 
-		return redirect()->route('products_list');
-	}
+            // Move the uploaded file to the public images directory
+            $file->move(public_path('images'), $fileName);
+
+            // Set the photo field to the newly uploaded file name
+            $request->merge(['photo' => $fileName]);
+        }
+
+        // Continue with existing save logic
+        $product->fill($request->all());
+        $product->save();
+
+        return redirect()->route('products_list');
+    }
+
+    public function delete(Request $request, Product $product) {
+        // Check if user has delete_products permission using direct permission check
+        if (!$request->user()->hasPermissionTo('delete_products')) {
+            abort(401);
+        }
+
+        $product->delete();
+
+        return redirect()->route('products_list');
+    }
 }
 ?>
 
