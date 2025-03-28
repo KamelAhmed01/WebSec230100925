@@ -42,9 +42,9 @@ class RolesAndPermissionsSeeder extends Seeder
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $adminRole->syncPermissions($allPermissions);
 
-        // Cashier role - gets specific permissions
-        $cashierRole = Role::firstOrCreate(['name' => 'cashier']);
-        $cashierRole->syncPermissions([
+        // employee role - gets specific permissions
+        $employeeRole = Role::firstOrCreate(['name' => 'employee']);
+        $employeeRole->syncPermissions([
             'add_products',
             'view_users',
             // Add more permissions as needed for cashiers
@@ -61,16 +61,16 @@ class RolesAndPermissionsSeeder extends Seeder
         );
         $admin->assignRole('admin');
 
-        // Create cashier user if it doesn't exist
-        $cashier = User::firstOrCreate(
-            ['email' => 'cashier@example.com'],
+        // Create employee user if it doesn't exist
+        $employee = User::firstOrCreate(
+            ['email' => 'employee@example.com'],
             [
-                'username' => 'Cashier User',
+                'username' => 'employee User',
                 'password' => Hash::make('P@ssw0rd123'),
                 'email_verified_at' => now(),
             ]
         );
-        $cashier->assignRole('cashier');
+        $employee->assignRole('employee');
 
         $this->command->info('Roles and permissions seeded successfully!');
     }
