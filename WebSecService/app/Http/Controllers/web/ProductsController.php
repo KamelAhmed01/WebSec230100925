@@ -7,10 +7,17 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controller as BaseController;
 use App\Models\Product;
+use Illuminate\Foundation\Validation\ValidatesRequests;
 
-class ProductsController extends Controller {
+class ProductsController extends BaseController {
+
+    use ValidatesRequests;
+    public function __construct()
+    {
+        $this->middleware('auth:web')->except('list');
+    }
 
     public function list(Request $request) {
 
@@ -108,7 +115,7 @@ class ProductsController extends Controller {
 
     public function delete(Request $request, Product $product) {
         // Check if user has delete_products permission using direct permission check
-        if (!$request->user()->hasPermissionTo('delete_products')) {
+        if (!$request->user()->hasPermissionTo('delete_products') || !$product->exists) {
             abort(401);
         }
 
