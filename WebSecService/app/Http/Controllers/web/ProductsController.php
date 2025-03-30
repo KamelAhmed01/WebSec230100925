@@ -61,10 +61,11 @@ class ProductsController extends Controller {
         return view('products.edit', compact('product', 'images'));
     }
 
-    public function save(Request $request, Product $product = null) {
+    public function save(Request $request, Product $product = null)
+    {
         $product = $product ?? new Product();
 
-        // Check for appropriate permissions using direct permission checks
+        // Check for appropriate permissions
         if ($product->exists && !$request->user()->hasPermissionTo('edit_products')) {
             abort(401);
         }
@@ -73,13 +74,14 @@ class ProductsController extends Controller {
             abort(401);
         }
 
-        // Validate basic product data
+        // Validate product data, including stock
         $validator = Validator::make($request->all(), [
             'code' => ['required', 'string', 'max:32'],
             'name' => ['required', 'string', 'max:128'],
             'model' => ['required', 'string', 'max:256'],
             'description' => ['required', 'string', 'max:1024'],
             'price' => ['required', 'numeric'],
+            'stock' => ['required', 'integer', 'min:0'],
             'image_upload' => ['nullable', 'file', 'image', 'mimes:jpeg,jpg,png,gif,webp', 'max:2048'],
         ]);
 

@@ -25,13 +25,23 @@
                 <div class="col-span-2">{{ $user->email }}</div>
             </div>
 
+            <!-- Credit balance displayed only for customers -->
+            @if($user->hasRole('customer'))
+            <div class="grid grid-cols-3 gap-4 border-b border-gray-200 pb-3">
+                <div class="font-semibold text-gray-700">Credit Balance</div>
+                <div class="col-span-2">
+                    <span class="text-xl font-bold text-green-600">${{ number_format($user->credit->amount ?? 0, 2) }}</span>
+                </div>
+            </div>
+            @endif
+
             <div class="grid grid-cols-3 gap-4 border-b border-gray-200 pb-3">
                 <div class="font-semibold text-gray-700">Role</div>
                 <div class="col-span-2">
                     @if($user->roles->count() > 0)
                         @foreach($user->roles as $role)
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                {{ $role->name }}
+                                {{ ucfirst($role->name) }}
                             </span>
                         @endforeach
                     @else
@@ -40,20 +50,19 @@
                 </div>
             </div>
 
+            <!-- Permissions section visible only to admins -->
+            @if(Auth::user()->hasRole('admin'))
             <div class="grid grid-cols-3 gap-4 border-b border-gray-200 pb-3">
                 <div class="font-semibold text-gray-700">Permissions</div>
                 <div class="col-span-2 flex flex-wrap gap-1">
-                    @if($user->getAllPermissions()->count() > 0)
-                        @foreach($user->getAllPermissions() as $permission)
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                {{ $permission->name }}
-                            </span>
-                        @endforeach
-                    @else
-                        <span class="text-gray-500">No permissions assigned</span>
-                    @endif
+                    @foreach($user->getAllPermissions() as $permission)
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            {{ $permission->name }}
+                        </span>
+                    @endforeach
                 </div>
             </div>
+            @endif
 
             <div class="flex items-center justify-between border-b border-gray-200 pb-3">
                 <div class="font-semibold text-gray-700">Member Since</div>
@@ -74,13 +83,13 @@
             </div>
 
             <div class="flex justify-between pt-4">
-                <a href="{{ route('users.index') }}" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition duration-300">
-                    Back to List
+                <a href="{{ url()->previous() }}" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition duration-300">
+                    Back
                 </a>
 
                 <div class="flex space-x-2">
                     @can('edit_users')
-                    <a href="{{ route('users.edit', $user) }}" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300">
+                    <a href="{{ route('users.edit', $user) }}" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300">
                         Edit
                     </a>
                     @endcan

@@ -9,8 +9,14 @@ class Product extends Model  {
         'code',
         'name',
         'price',
+        'stock',
         'model',
         'description',
         'photo'
     ];
+
+    public function purchaseItems()
+    {
+        return $this->hasMany(PurchaseItem::class);
+    }
 }

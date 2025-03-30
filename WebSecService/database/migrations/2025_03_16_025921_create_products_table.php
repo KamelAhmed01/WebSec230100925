@@ -26,6 +26,7 @@ class CreateProductsTable extends Migration
             $table->string('code', 64);
             $table->string('name', 256);
             $table->integer('price');
+            $table->integer('stock')->default(0);
             $table->string('model', 128);
             $table->text('description')->nullable();
             $table->string('photo', 128)->nullable();

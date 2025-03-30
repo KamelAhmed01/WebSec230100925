@@ -77,9 +77,9 @@ class UserController extends Controller
      */
     public function show(Request $request, User $user)
     {
-        // Check if user has view_users permission
-        if (!$request->user()->hasPermissionTo('view_users')) {
-            abort(401);
+        // Allow users to view their own profiles OR check for view_users permission
+        if ($request->user()->id !== $user->id && !$request->user()->hasPermissionTo('view_users')) {
+            abort(404);
         }
 
         return view('users.show', compact('user'));

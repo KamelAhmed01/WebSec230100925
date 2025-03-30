@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Credit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -22,6 +23,15 @@ class AuthController extends Controller
 
         //register user
         $user = User::create($fields);
+
+        // Assign customer role
+        $user->assignRole('customer');
+
+        // Create initial credit record with 0 amount
+        Credit::create([
+            'user_id' => $user->id,
+            'amount' => 0
+        ]);
 
         //login
         Auth::login($user);

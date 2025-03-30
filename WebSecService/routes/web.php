@@ -4,6 +4,9 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\web\ProductsController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\CreditController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -136,4 +139,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/books', [BookController::class, 'index'])->name('books.index');
     Route::get('/books/create', [BookController::class, 'create'])->name('books.create');
     Route::post('/books', [BookController::class, 'store'])->name('books.store');
+
+    // Customer routes
+    Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');
+    Route::post('/purchases/{product}', [PurchaseController::class, 'store'])->name('purchases.store');
+
+    // Credit management routes
+    Route::post('/users/{user}/add-credit', [CreditController::class, 'addCredit'])->name('users.add-credit');
+
+    // Customer profile route
+    Route::get('/profile', function (Request $request) {
+        return view('profile.show', ['user' => $request->user()]);
+    })->name('profile.show');
 });

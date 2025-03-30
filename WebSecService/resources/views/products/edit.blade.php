@@ -75,6 +75,23 @@
             </div>
 
             <div>
+                <label for="stock" class="block text-gray-700 font-medium mb-1">Stock Quantity</label>
+                <input
+                    type="number"
+                    name="stock"
+                    id="stock"
+                    min="0"
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value="{{ $product->stock ?? 0 }}"
+                    placeholder="0"
+                    required
+                >
+                @error('stock')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
                 <label for="description" class="block text-gray-700 font-medium mb-1">Description</label>
                 <textarea
                     name="description"
