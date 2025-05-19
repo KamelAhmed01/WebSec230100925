@@ -116,7 +116,7 @@ Route::middleware('guest')->group(function () {
 });
 
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth'])->group(function () {
 
     Route::get('/change-password', [AuthController::class, 'showChangePasswordForm'])->name('password.change');
     Route::post('/change-password', [AuthController::class, 'changePassword'])->name('password.update');
@@ -151,4 +151,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', function (Request $request) {
         return view('profile.show', ['user' => $request->user()]);
     })->name('profile.show');
+
+    Route::get('/wishlist', [\App\Http\Controllers\WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/{product}', [\App\Http\Controllers\WishlistController::class, 'store'])->name('wishlist.store');
+    Route::delete('/wishlist/{product}', [\App\Http\Controllers\WishlistController::class, 'destroy'])->name('wishlist.destroy');
 });

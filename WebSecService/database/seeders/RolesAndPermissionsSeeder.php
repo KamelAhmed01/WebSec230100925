@@ -34,6 +34,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $customerPermissions = [
             'make_purchases',
             'view_purchases',
+            'manage_wishlist',
         ];
 
         // Create credit permissions

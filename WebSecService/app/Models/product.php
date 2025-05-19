@@ -1,11 +1,13 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Product extends Model  {
+class Product extends Model
+{
 
-	protected $fillable = [
+    protected $fillable = [
         'code',
         'name',
         'price',
@@ -18,5 +20,10 @@ class Product extends Model  {
     public function purchaseItems()
     {
         return $this->hasMany(PurchaseItem::class);
+    }
+
+    public function wishlistedBy()
+    {
+        return $this->belongsToMany(User::class, 'wishlist')->withTimestamps();
     }
 }
